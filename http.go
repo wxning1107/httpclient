@@ -13,6 +13,7 @@ func NewClient(c *Config) *Client {
 	if c.BreakerRate > 1.0 || c.BreakerRate < 0 {
 		panic("breaker rate is invalid")
 	}
+
 	if c.BreakerMinSample == 0 {
 		c.BreakerMinSample = 10
 	}
@@ -20,8 +21,5 @@ func NewClient(c *Config) *Client {
 		c.BreakerRate = 0.5
 	}
 
-	client := Open(c)
-
-	return client
+	return open(c)
 }
-

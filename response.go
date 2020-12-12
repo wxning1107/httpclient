@@ -68,7 +68,7 @@ func (resp *Response) Body() (body string, err error) {
 	return string(bodyBytes), nil
 }
 
+// TODO:
 func (resp *Response) IsDegraded() bool {
-	// TODO:
 	return false
 }
