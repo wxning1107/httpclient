@@ -17,23 +17,23 @@ func GetOriginHttpHandler() HandlerFunc {
 func GetBreakerHandler() HandlerFunc {
 	return func(b *Builder) {
 		if b.conf.DisableBreaker {
-			b.Next()
+			b.next()
 			return
 		}
 
-		breaker, err := b.GetUrlBreaker(b.url)
-		if err != nil {
-			b.SetError(err)
-			return
-		}
+		//breaker, err := b.GetUrlBreaker(b.url)
+		//if err != nil {
+		//	b.SetError(err)
+		//	return
+		//}
 
-		breaker.Call()
+		//breaker.Call()
 	}
 }
 
 func GetFilterHandler() HandlerFunc {
 	return func(b *Builder) {
-		b.Next()
+		b.next()
 
 		filterFunc := b.GetFilterFunc()
 		if filterFunc != nil {
@@ -47,7 +47,7 @@ func GetFilterHandler() HandlerFunc {
 
 func GetAccessStatusCodeHandler() HandlerFunc {
 	return func(b *Builder) {
-		b.Next()
+		b.next()
 
 		resp := b.response
 		if resp == nil {
@@ -66,4 +66,3 @@ func GetAccessStatusCodeHandler() HandlerFunc {
 		}
 	}
 }
-

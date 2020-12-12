@@ -13,7 +13,7 @@ type Response struct {
 	err error
 }
 
-func NewResponse(resp *http.Response, err error) *Response {
+func newResponse(resp *http.Response, err error) *Response {
 	return &Response{
 		Response: resp,
 		err:      err,

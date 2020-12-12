@@ -40,7 +40,6 @@ func Open(c *Config) *Client {
 			DialContext: (&net.Dialer{
 				Timeout:   30 * time.Second,
 				KeepAlive: 30 * time.Second,
-				//DualStack: true,
 			}).DialContext,
 			DisableKeepAlives:     c.DisableKeepAlives,
 			MaxIdleConns:          c.MaxIdleConns,
@@ -56,7 +55,7 @@ func Open(c *Config) *Client {
 }
 
 func (c *Client) Builder() *Builder {
-	builder := NewBuilder(c)
+	builder := newBuilder(c)
 
 	return builder
 }

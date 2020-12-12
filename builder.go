@@ -39,13 +39,13 @@ type Builder struct {
 	client *Client
 }
 
-func NewBuilder(client *Client) *Builder {
+func newBuilder(client *Client) *Builder {
 	builder := &Builder{
-		client:       client,
+		client:           client,
 		accessStatusCode: []int{http.StatusOK},
-		handlerIndex: -1,
+		handlerIndex:     -1,
 		handlerChain: []HandlerFunc{
-			GetFilterHandler(),GetBreakerHandler(),
+			GetFilterHandler(), GetBreakerHandler(),
 		},
 	}
 
@@ -143,7 +143,7 @@ func (b *Builder) SetAccessCode(statusCode ...int) *Builder {
 
 func (b *Builder) Fetch(ctx context.Context) *Response {
 	if b.err != nil {
-		NewResponse(nil, b.err)
+		newResponse(nil, b.err)
 	}
 
 	if b.queryParams != nil && b.queryParams.Values != nil {
@@ -158,7 +158,7 @@ func (b *Builder) Fetch(ctx context.Context) *Response {
 	b.AddHandler(GetOriginHttpHandler())
 	resp, err := b.fetch()
 
-	return NewResponse(resp, err)
+	return newResponse(resp, err)
 }
 
 func (b *Builder) fetch() (*http.Response, error) {
@@ -187,12 +187,12 @@ func (b *Builder) fetch() (*http.Response, error) {
 	b.host = req.URL.Host
 	b.request = req
 
-	b.Next()
+	b.next()
 
 	return b.response, b.err
 }
 
-func (b *Builder) Next() {
+func (b *Builder) next() {
 	b.handlerIndex++
 	if b.handlerIndex < len(b.handlerChain) {
 		b.handlerChain[b.handlerIndex](b)
