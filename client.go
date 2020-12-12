@@ -19,7 +19,7 @@ type Client struct {
 	globalCancelFunc context.CancelFunc
 }
 
-func Open(c *Config) *Client {
+func open(c *Config) *Client {
 	if c.MaxIdleConns == 0 {
 		c.MaxIdleConns = DefaultMaxIdleConns
 	}

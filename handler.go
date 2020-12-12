@@ -14,6 +14,7 @@ func GetOriginHttpHandler() HandlerFunc {
 	}
 }
 
+// TODO:
 func GetBreakerHandler() HandlerFunc {
 	return func(b *Builder) {
 		if b.conf.DisableBreaker {
