@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func ExampleHttpclient() {
+func ExampleNewClient() {
 	client := NewClient(&Config{
 		RequestTimeout: time.Second,
 	})

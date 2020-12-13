@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"httpclient/circuitbreaker"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptrace"
 	"net/url"
@@ -24,9 +25,10 @@ type Builder struct {
 	endpoint    string
 	host        string
 
-	ctx      context.Context
-	request  *http.Request
-	response *http.Response
+	ctx              context.Context
+	request          *http.Request
+	response         *http.Response
+	degradedResponse *http.Response
 
 	handlerIndex int
 	handlerChain []HandlerFunc
@@ -139,6 +141,26 @@ func (b *Builder) SetAccessCode(statusCode ...int) *Builder {
 	b.accessStatusCode = statusCode
 
 	return b
+}
+
+func (b *Builder) GetDegradedResponse() *http.Response {
+	return b.degradedResponse
+}
+
+func (b *Builder) DegradedResponse(statusCode int, body []byte) *Builder {
+	b.degradedResponse = &http.Response{
+		StatusCode: statusCode,
+		Body:       ioutil.NopCloser(bytes.NewReader(body)),
+	}
+	return b
+}
+
+func (b *Builder) GetContext() context.Context {
+	return b.ctx
+}
+
+func (b *Builder) GetError() error {
+	return b.err
 }
 
 func (b *Builder) Fetch(ctx context.Context) *Response {
