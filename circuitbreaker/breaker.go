@@ -11,7 +11,7 @@ import (
 type BreakerStatus = int
 
 const (
-	BreakerNotReady BreakerStatus = iota
+	BreakerNotReady BreakerStatus = iota + 1
 	BreakerTimeout
 	BreakerSuccess
 	BreakerFailed
@@ -20,7 +20,7 @@ const (
 type BreakerState = int64
 
 const (
-	ClosedState BreakerState = iota
+	ClosedState BreakerState = iota + 1
 	HalfOpenState
 	OpenState
 )
