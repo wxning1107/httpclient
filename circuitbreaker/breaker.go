@@ -11,7 +11,7 @@ import (
 type BreakerStatus = int
 
 const (
-	BreakerNotReady BreakerStatus = iota
+	BreakerNotReady BreakerStatus = iota + 1
 	BreakerTimeout
 	BreakerSuccess
 	BreakerFailed
@@ -20,7 +20,7 @@ const (
 type BreakerState = int64
 
 const (
-	ClosedState BreakerState = iota
+	ClosedState BreakerState = iota + 1
 	HalfOpenState
 	OpenState
 )
@@ -31,8 +31,7 @@ type Breaker struct {
 
 	ShouldTrip   TripFunc
 	ShouldResume ShouldResume
-	// TODO:
-	counts *slidingwindow.SlidingWindow
+	counts       *slidingwindow.SlidingWindow
 
 	breakerState             int64
 	lastRequestTime          int64
@@ -44,10 +43,12 @@ type Breaker struct {
 
 func (b *Breaker) trip() {
 	atomic.StoreInt64(&b.breakerState, OpenState)
+	b.counts.Reset()
 }
 
 func (b *Breaker) resume() {
 	atomic.StoreInt64(&b.breakerState, ClosedState)
+	b.counts.Reset()
 }
 
 func (b *Breaker) Call(ctx context.Context, f func() error, timeout time.Duration) (state BreakerStatus, err error) {
@@ -90,7 +91,7 @@ func (b *Breaker) Ready() bool {
 	case OpenState:
 		return false
 	case HalfOpenState:
-		if time.Now().Sub(time.Unix(0, atomic.LoadInt64(&b.lastRequestTime))) >= b.nextBackOff &&
+		if time.Since(time.Unix(0, atomic.LoadInt64(&b.lastRequestTime))) >= b.nextBackOff &&
 			atomic.CompareAndSwapInt64(&b.halfOpenRequesting, 0, 1) {
 			b.nextBackOff = b.backOff.NextBackOff()
 			return true
@@ -109,7 +110,7 @@ func (b *Breaker) currentState() BreakerState {
 	case HalfOpenState:
 		return HalfOpenState
 	case OpenState:
-		if time.Now().Sub(time.Unix(0, atomic.LoadInt64(&b.lastRequestTime))) > b.attemptHalfOpensInterval &&
+		if time.Since(time.Unix(0, atomic.LoadInt64(&b.lastRequestTime))) > b.attemptHalfOpensInterval &&
 			atomic.CompareAndSwapInt64(&b.breakerState, OpenState, HalfOpenState) {
 			return HalfOpenState
 		}
@@ -120,8 +121,10 @@ func (b *Breaker) currentState() BreakerState {
 }
 
 func (b *Breaker) success() {
+	b.counts.Success()
 	atomic.AddInt64(&b.continuousSuccessCount, 1)
 	atomic.StoreInt64(&b.continuousFailuresCount, 0)
+
 	switch b.currentState() {
 	case ClosedState:
 		atomic.StoreInt64(&b.lastRequestTime, time.Now().UnixNano())
@@ -139,8 +142,10 @@ func (b *Breaker) success() {
 }
 
 func (b *Breaker) fail() {
+	b.counts.Fail()
 	atomic.AddInt64(&b.continuousFailuresCount, 1)
 	atomic.StoreInt64(&b.continuousSuccessCount, 0)
+
 	switch b.currentState() {
 	case ClosedState:
 		if b.ShouldTrip != nil && b.ShouldTrip(b) {
@@ -155,15 +160,15 @@ func (b *Breaker) fail() {
 }
 
 func (b *Breaker) FailureCount() int64 {
-	return 0
+	return b.counts.FailureCount()
 }
 
 func (b *Breaker) SuccessCount() int64 {
-	return 100
+	return b.counts.SuccessCount()
 }
 
-func (b *Breaker) ErrorRate() float64 {
-	return 0
+func (b *Breaker) FailureRate() float64 {
+	return b.counts.FailureRate()
 }
 
 func (b *Breaker) ContinuousSuccessCount() int64 {
