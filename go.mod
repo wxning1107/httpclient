@@ -1,4 +1,4 @@
-module httpclient
+module github.com/wxning1107/httpclient
 
 go 1.15
 
