@@ -1,10 +1,18 @@
-# Element Httpclient
+# Elegant Httpclient
 
 ### What's this?
 
 The project provides a simple httpclient that is implemented with Golang
 
-## How to use?
+### Installation
+
+To install Httpclient package, you need to install Go and set your Go workspace first.
+
+```shell script
+$ go get -u github.com/wxning1107/httpclient
+```
+
+### How to use?
 
 ```go
 	client := NewClient(&Config{
