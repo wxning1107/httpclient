@@ -9,7 +9,13 @@ import (
 
 func ExampleHttpclient() {
 	client := NewClient(&Config{
-		RequestTimeout: time.Second,
+		RequestTimeout:      time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 2,
+		MaxConnsPerHost:     0,
+		IdleConnTimeout:     time.Second * 90,
+		DisableBreaker:      true,
 	})
 
 	resp := client.Builder().
